@@ -14,7 +14,11 @@ const UFragments = artifacts.require('UFragments.sol');
 const _require = require('app-root-path').require;
 const BlockchainCaller = _require('/util/blockchain_caller');
 const chain = new BlockchainCaller(web3);
-const encodeCall = require('@openzeppelin/upgrades/lib/helpers/encodeCall').default;
+
+// const encodeCall = require('@openzeppelin/upgrades/lib/helpers/encodeCall').default;
+// const encodeCall = require('/util/encodeCall').default;
+const encodeCall = require('./../../util/encodeCall');
+
 const BigNumber = web3.BigNumber;
 
 const endSupply = new BigNumber(2).pow(128).minus(1);

@@ -31,7 +31,8 @@ const _require = require('app-root-path').require;
 const BlockchainCaller = _require('/util/blockchain_caller');
 const chain = new BlockchainCaller(web3);
 const BigNumber = web3.BigNumber;
-const encodeCall = require('@openzeppelin/upgrades/lib/helpers/encodeCall').default;
+// const encodeCall = require('/util/encodeCall').default;
+const encodeCall = require('./../../util/encodeCall');
 
 require('chai')
   .use(require('chai-bignumber')(BigNumber))

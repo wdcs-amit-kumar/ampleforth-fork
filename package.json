@@ -1,5 +1,5 @@
 {
-  "name": "ufragments-fork",
+  "name": "ufragments",
   "version": "0.0.1",
   "description": "Ampleforth protocol smart contracts on Ethereum.",
   "keywords": [
@@ -32,6 +32,8 @@
   },
   "dependencies": {
     "app-root-path": "2.1.0",
+    "bignumber.js": "^9.0.0",
+    "ethereumjs-abi": "^0.6.8",
     "frg-ethereum-runners": "https://github.com/ampleforth/frg-ethereum-runners.git#v1.0.0-alpha",
     "js-yaml": "^3.13.1",
     "openzeppelin-eth": "2.0.2",
@@ -39,7 +41,7 @@
   },
   "devDependencies": {
     "@openzeppelin/test-environment": "^0.1.2",
-    "@openzeppelin/test-helpers": "^0.5.4",
+    "@openzeppelin/test-helpers": "^0.5.6",
     "chai": "^4.1.2",
     "chai-bignumber": "^2.0.2",
     "coveralls": "^3.0.2",
