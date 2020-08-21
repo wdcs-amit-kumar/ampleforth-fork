@@ -1,8 +1,10 @@
 pragma solidity 0.4.24;
 
-import "openzeppelin-eth/contracts/ownership/Ownable.sol";
+// import "openzeppelin-eth/contracts/ownership/Ownable.sol";
+import "../node_modules/openzeppelin-eth/contracts/ownership/Ownable.sol";
 
 import "./UFragmentsPolicy.sol";
+// import "./Ownable.sol";
 
 
 /**
@@ -28,6 +30,7 @@ contract Orchestrator is Ownable {
     /**
      * @param policy_ Address of the UFragments policy.
      */
+
     constructor(address policy_) public {
         Ownable.initialize(msg.sender);
         policy = UFragmentsPolicy(policy_);

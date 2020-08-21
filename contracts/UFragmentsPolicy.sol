@@ -1,11 +1,14 @@
 pragma solidity 0.4.24;
 
-import "openzeppelin-eth/contracts/math/SafeMath.sol";
-import "openzeppelin-eth/contracts/ownership/Ownable.sol";
+// import "openzeppelin-eth/contracts/math/SafeMath.sol";
+// import "openzeppelin-eth/contracts/ownership/Ownable.sol";
+import "../node_modules/openzeppelin-eth/contracts/ownership/Ownable.sol";
 
-import "./lib/SafeMathInt.sol";
+import "./lib/SafeMathInt.sol"; //from lib
 import "./lib/UInt256Lib.sol";
 import "./UFragments.sol";
+import "./SafeMath.sol";
+// import "./Ownable.sol";
 
 
 interface IOracle {
@@ -125,10 +128,21 @@ contract UFragmentsPolicy is Ownable {
             exchangeRate = MAX_RATE;
         }
 
+        // Calculating supplyDelta amit
         int256 supplyDelta = computeSupplyDelta(exchangeRate, targetRate);
+
+
+
+
+
 
         // Apply the Dampening factor.
         supplyDelta = supplyDelta.div(rebaseLag.toInt256Safe());
+
+
+
+
+
 
         if (supplyDelta > 0 && uFrags.totalSupply().add(uint256(supplyDelta)) > MAX_SUPPLY) {
             supplyDelta = (MAX_SUPPLY.sub(uFrags.totalSupply())).toInt256Safe();
@@ -215,12 +229,13 @@ contract UFragmentsPolicy is Ownable {
      */
     function setRebaseTimingParameters(
         uint256 minRebaseTimeIntervalSec_,
-        uint256 rebaseWindowOffsetSec_,
+        uint256 rebaseWindowOffsetSec_,       // 15 minutes
         uint256 rebaseWindowLengthSec_)
         external
         onlyOwner
     {
-        require(minRebaseTimeIntervalSec_ > 0);
+        require(minRebaseTimeIntervalSec_ > 0); // 1 day
+
         require(rebaseWindowOffsetSec_ < minRebaseTimeIntervalSec_);
 
         minRebaseTimeIntervalSec = minRebaseTimeIntervalSec_;
@@ -278,8 +293,9 @@ contract UFragmentsPolicy is Ownable {
         if (withinDeviationThreshold(rate, targetRate)) {
             return 0;
         }
+                    
+        // supplyDelta = UFragment-totalSupply * (rate - targetRate) / targetRate
 
-        // supplyDelta = totalSupply * (rate - targetRate) / targetRate
         int256 targetRateSigned = targetRate.toInt256Safe();
         return uFrags.totalSupply().toInt256Safe()
             .mul(rate.toInt256Safe().sub(targetRateSigned))
@@ -292,6 +308,9 @@ contract UFragmentsPolicy is Ownable {
      * @return If the rate is within the deviation threshold from the target rate, returns true.
      *         Otherwise, returns false.
      */
+
+     
+     // rate = 5 and targetRate = 1.009
     function withinDeviationThreshold(uint256 rate, uint256 targetRate)
         private
         view
