@@ -1,12 +1,14 @@
 pragma solidity 0.4.24;
 
-import "openzeppelin-eth/contracts/math/SafeMath.sol";
-import "openzeppelin-eth/contracts/ownership/Ownable.sol";
+// import "openzeppelin-eth/contracts/math/SafeMath.sol";
+// import "openzeppelin-eth/contracts/ownership/Ownable.sol";
 
 import "./lib/SafeMathInt.sol";
 import "./lib/UInt256Lib.sol";
 import "./UFragments.sol";
 
+import "./helper/Ownable.sol";
+import "./helper/SafeMath.sol";
 
 interface IOracle {
     function getData() external returns (uint256, bool);
@@ -53,6 +55,7 @@ contract UFragmentsPolicy is Ownable {
     // DECIMALS Fixed point number.
     uint256 public deviationThreshold;
 
+    uint256 public exchangeRate;
     // The rebase lag parameter, used to dampen the applied supply adjustment by 1 / rebaseLag
     // Check setRebaseLag comments for more details.
     // Natural number, no decimal places.
@@ -97,6 +100,14 @@ contract UFragmentsPolicy is Ownable {
      *      Where DeviationFromTargetRate is (MarketOracleRate - targetRate) / targetRate
      *      and targetRate is CpiOracleRate / baseCpi
      */
+     
+     
+    // uint256 public supplyDelta;
+    // uint256 public exchangeRate;
+    // int256 public targetRate ;
+    uint256 public priceChange ;
+    int256 public supplyDeltaNew;
+
     function rebase() external onlyOrchestrator {
         require(inRebaseWindow());
 
@@ -114,29 +125,34 @@ contract UFragmentsPolicy is Ownable {
         (cpi, cpiValid) = cpiOracle.getData();
         require(cpiValid);
 
-        uint256 targetRate = cpi.mul(10 ** DECIMALS).div(baseCpi);
 
-        uint256 exchangeRate;
-        bool rateValid;
-        (exchangeRate, rateValid) = marketOracle.getData();
-        require(rateValid);
+        // uint256 targetRate = cpi.mul(10 ** DECIMALS).div(baseCpi);
+        uint256 targetRate = 10 ** DECIMALS ; //amit
 
+        // exchangeRate = exchangeRate.mul(10 ** DECIMALS).div(baseCPI);
+        // bool rateValid;
+       
+        // (exchangeRate, rateValid) = marketOracle.getData();
+        // require(rateValid);
+
+       
         if (exchangeRate > MAX_RATE) {
             exchangeRate = MAX_RATE;
         }
 
-        int256 supplyDelta = computeSupplyDelta(exchangeRate, targetRate);
+       int256 supplyDelta = computeSupplyDelta(exchangeRate, targetRate);
 
         // Apply the Dampening factor.
         supplyDelta = supplyDelta.div(rebaseLag.toInt256Safe());
+        supplyDeltaNew = supplyDelta.div(5);
 
-        if (supplyDelta > 0 && uFrags.totalSupply().add(uint256(supplyDelta)) > MAX_SUPPLY) {
-            supplyDelta = (MAX_SUPPLY.sub(uFrags.totalSupply())).toInt256Safe();
+        if (supplyDeltaNew > 0 && uFrags.totalSupply().add(uint256(supplyDeltaNew)) > MAX_SUPPLY) {
+            supplyDeltaNew = (MAX_SUPPLY.sub(uFrags.totalSupply())).toInt256Safe();
         }
 
-        uint256 supplyAfterRebase = uFrags.rebase(epoch, supplyDelta);
+        uint256 supplyAfterRebase = uFrags.rebase(epoch, supplyDeltaNew);
         assert(supplyAfterRebase <= MAX_SUPPLY);
-        emit LogRebase(epoch, exchangeRate, cpi, supplyDelta, now);
+        emit LogRebase(epoch, exchangeRate, cpi, supplyDeltaNew, now);
     }
 
     /**
@@ -146,6 +162,7 @@ contract UFragmentsPolicy is Ownable {
     function setCpiOracle(IOracle cpiOracle_)
         external
         onlyOwner
+       
     {
         cpiOracle = cpiOracle_;
     }
@@ -157,6 +174,7 @@ contract UFragmentsPolicy is Ownable {
     function setMarketOracle(IOracle marketOracle_)
         external
         onlyOwner
+      
     {
         marketOracle = marketOracle_;
     }
@@ -185,6 +203,13 @@ contract UFragmentsPolicy is Ownable {
         deviationThreshold = deviationThreshold_;
     }
 
+    function setExchangeRate(uint256 exchangeRate_)
+        external
+        onlyOwner
+    {
+        exchangeRate = exchangeRate_;
+    }
+
     /**
      * @notice Sets the rebase lag parameter.
                It is used to dampen the applied supply adjustment by 1 / rebaseLag
@@ -201,18 +226,7 @@ contract UFragmentsPolicy is Ownable {
         rebaseLag = rebaseLag_;
     }
 
-    /**
-     * @notice Sets the parameters which control the timing and frequency of
-     *         rebase operations.
-     *         a) the minimum time period that must elapse between rebase cycles.
-     *         b) the rebase window offset parameter.
-     *         c) the rebase window length parameter.
-     * @param minRebaseTimeIntervalSec_ More than this much time must pass between rebase
-     *        operations, in seconds.
-     * @param rebaseWindowOffsetSec_ The number of seconds from the beginning of
-              the rebase interval, where the rebase window begins.
-     * @param rebaseWindowLengthSec_ The length of the rebase window in seconds.
-     */
+ 
     function setRebaseTimingParameters(
         uint256 minRebaseTimeIntervalSec_,
         uint256 rebaseWindowOffsetSec_,
@@ -240,9 +254,9 @@ contract UFragmentsPolicy is Ownable {
         Ownable.initialize(owner_);
 
         // deviationThreshold = 0.05e18 = 5e16
-        deviationThreshold = 5 * 10 ** (DECIMALS-2);
+        deviationThreshold = 25 * 10 ** (DECIMALS-3);
 
-        rebaseLag = 30;
+        rebaseLag = 1;
         minRebaseTimeIntervalSec = 1 days;
         rebaseWindowOffsetSec = 72000;  // 8PM UTC
         rebaseWindowLengthSec = 15 minutes;
@@ -301,4 +315,9 @@ contract UFragmentsPolicy is Ownable {
         return (rate >= targetRate && rate.sub(targetRate) < absoluteDeviationThreshold)
             || (rate < targetRate && targetRate.sub(rate) < absoluteDeviationThreshold);
     }
+    
+    
+    
+    
+    
 }
