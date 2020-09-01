@@ -77,7 +77,7 @@ contract('UFragmentsPolicy:initialize', async function (accounts) {
     before('setup UFragmentsPolicy contract', setupContracts);
 
     it('deviationThreshold', async function () {
-      (await uFragmentsPolicy.deviationThreshold.call()).should.be.bignumber.eq(0.05e18);
+      (await uFragmentsPolicy.deviationThreshold.call()).should.be.bignumber.eq(0.025e18);
     });
     it('rebaseLag', async function () {
       (await uFragmentsPolicy.rebaseLag.call()).should.be.bignumber.eq(30);

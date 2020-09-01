@@ -121,9 +121,9 @@ contract UFragmentsPolicy is Ownable {
         epoch = epoch.add(1);
 
         uint256 cpi;
-        bool cpiValid;
-        (cpi, cpiValid) = cpiOracle.getData();
-        require(cpiValid);
+        // bool cpiValid;
+        // (cpi, cpiValid) = cpiOracle.getData();
+        // require(cpiValid);
 
 
         // uint256 targetRate = cpi.mul(10 ** DECIMALS).div(baseCpi);
@@ -174,7 +174,6 @@ contract UFragmentsPolicy is Ownable {
     function setMarketOracle(IOracle marketOracle_)
         external
         onlyOwner
-      
     {
         marketOracle = marketOracle_;
     }
@@ -226,7 +225,18 @@ contract UFragmentsPolicy is Ownable {
         rebaseLag = rebaseLag_;
     }
 
- 
+    /**
+     * @notice Sets the parameters which control the timing and frequency of
+     *         rebase operations.
+     *         a) the minimum time period that must elapse between rebase cycles.
+     *         b) the rebase window offset parameter.
+     *         c) the rebase window length parameter.
+     * @param minRebaseTimeIntervalSec_ More than this much time must pass between rebase
+     *        operations, in seconds.
+     * @param rebaseWindowOffsetSec_ The number of seconds from the beginning of
+              the rebase interval, where the rebase window begins.
+     * @param rebaseWindowLengthSec_ The length of the rebase window in seconds.
+     */
     function setRebaseTimingParameters(
         uint256 minRebaseTimeIntervalSec_,
         uint256 rebaseWindowOffsetSec_,
@@ -256,7 +266,7 @@ contract UFragmentsPolicy is Ownable {
         // deviationThreshold = 0.05e18 = 5e16
         deviationThreshold = 25 * 10 ** (DECIMALS-3);
 
-        rebaseLag = 1;
+        rebaseLag = 30;
         minRebaseTimeIntervalSec = 1 days;
         rebaseWindowOffsetSec = 72000;  // 8PM UTC
         rebaseWindowLengthSec = 15 minutes;
@@ -321,3 +331,4 @@ contract UFragmentsPolicy is Ownable {
     
     
 }
+

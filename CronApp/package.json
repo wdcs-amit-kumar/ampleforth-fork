@@ -1,0 +1,26 @@
+{
+  "name": "ampleforth-fork",
+  "version": "1.0.0",
+  "description": "\"blockchain application\"",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "process_distribution": "node --require dotenv/config ./cron/stakeDistributor.js"
+  },
+  "author": "codezeros",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.2.0",
+    "ethereumjs-tx": "^2.1.2",
+    "express": "^4.17.1",
+    "html-table-to-json": "^1.0.0",
+    "jssoup": "0.0.12",
+    "mongoose": "^5.10.2",
+    "morgan": "^1.10.0",
+    "print-html-element": "^0.5.1",
+    "request": "^2.88.2",
+    "web3": "^1.2.11"
+  }
+}
